@@ -14,9 +14,9 @@ data = sc.textFile("hdfs://group14-1:54310/hw1-input/")
 # Parse CSV safely
 splitdata = data.mapPartitions(lambda x: reader(x))
 
-# Skip header row (check header by position or by known field name)
-header = splitdata.first()
-splitdata = splitdata.filter(lambda x: x != header)
+# Filter out header row based on column label content
+# The header row usually has "CMPLNT_NUM" or "RPT_DT" in it
+splitdata = splitdata.filter(lambda x: len(x) > 7 and x[5] != "RPT_DT" and x[7] != "OFNS_DESC")
 
 # Columns of interest:
 # rpt_dt (Report Date) -> index 5
