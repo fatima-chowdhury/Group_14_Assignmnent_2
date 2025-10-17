@@ -9,7 +9,7 @@ sc.setLogLevel("ERROR")
 
 # Read data from HDFS
 # Replace groupX-1 with your group name (e.g., group5-1)
-data = sc.textFile("hdfs://groupX-1:54310/hw1-input/NYPD_Complaint_Data_Current_YTD.csv")
+data = sc.textFile("hdfs://group14-1:54310/hw1-input/")
 
 # Parse CSV safely
 splitdata = data.mapPartitions(lambda x: reader(x))
