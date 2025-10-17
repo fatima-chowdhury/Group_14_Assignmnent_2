@@ -4,7 +4,7 @@ from csv import reader
 from datetime import datetime
 
 # Initialize SparkContext
-sc = SparkContext(appName="DangerousWeaponsJuly")
+sc = SparkContext(appName="hw2")
 sc.setLogLevel("ERROR")
 
 # Read data from HDFS
