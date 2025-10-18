@@ -39,6 +39,7 @@ def is_july_dangerous_weapons(row):
         # Skip any malformed rows
         return False
 
+# Apply filter
 filtered = splitdata.filter(is_july_dangerous_weapons)
 
 # Count the number of records
