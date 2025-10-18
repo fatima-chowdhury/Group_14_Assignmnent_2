@@ -20,7 +20,7 @@ splitdata = splitdata.filter(lambda x: len(x) > 7 and x[5] != "RPT_DT" and x[7] 
 # rpt_dt (Report Date) -> index 5
 # ofns_desc (Offense Description) -> index 7
 
-# Filter for DANGEROUS WEAPONS and month == July
+# Filter for DANGEROUS WEAPONS crimes in July
 def is_july_dangerous_weapons(row):
     try:
         ofns_desc = row[7].strip().upper()
