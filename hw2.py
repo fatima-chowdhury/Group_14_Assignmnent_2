@@ -47,4 +47,5 @@ count = filtered.count()
 
 print("Number of DANGEROUS WEAPONS crimes reported in July: {}".format(count))
 
+# Stop SparkContext
 sc.stop()
