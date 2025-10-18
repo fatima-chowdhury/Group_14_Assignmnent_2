@@ -25,18 +25,18 @@ def is_july_dangerous_weapons(row):
     try:
         ofns_desc = row[7].strip().upper()
         rpt_date = row[5].strip()
-        if ofns_desc == "DANGEROUS WEAPONS":
-            # Some dates might be 'MM/DD/YYYY' or 'YYYY-MM-DD'
-            try:
-                date_obj = datetime.strptime(rpt_date, "%m/%d/%Y")
-            except:
-                try:
-                    date_obj = datetime.strptime(rpt_date, "%Y-%m-%d")
-                except:
-                    return False
-            return date_obj.month == 7
-        return False
+
+        # Only consider records that exactly match "DANGEROUS WEAPONS"
+        if ofns_desc != "DANGEROUS WEAPONS":
+            return False
+        
+        # Parse date as MM/DD/YYYY (the NYPD format)
+        date_obj = datetime.strptime(rpt_date, "%m/%d/%Y")
+
+        # Keep only records from July
+        return date_obj.month == 7
     except:
+        # Skip any malformed rows
         return False
 
 filtered = splitdata.filter(is_july_dangerous_weapons)
