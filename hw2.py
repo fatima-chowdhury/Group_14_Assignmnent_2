@@ -29,7 +29,7 @@ def is_july_dangerous_weapons(row):
         # Only consider records that exactly match "DANGEROUS WEAPONS"
         if ofns_desc != "DANGEROUS WEAPONS":
             return False
-
+        
         # Parse date as MM/DD/YYYY (the NYPD format)
         date_obj = datetime.strptime(rpt_date, "%m/%d/%Y")
         
