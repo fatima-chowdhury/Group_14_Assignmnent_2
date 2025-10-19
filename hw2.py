@@ -52,7 +52,7 @@ print("RESULT\t{}\t{}".format(most_crime[0], most_crime[1]))
 
 # drop header
 header = splitdata.first()
-rows = splitdata.filter(lambda x: x != header)
+rows2 = splitdata.filter(lambda x: x != header)
 
 # keep rows where crime type (OFNS_DESC) is not blank
 # OFNS_DESC is index 7 in the given dataset
