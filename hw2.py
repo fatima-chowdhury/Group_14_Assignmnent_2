@@ -1,15 +1,22 @@
-from csv import reader
+#!/usr/bin/env python2.7
 from pyspark import SparkContext
+from csv import reader
 from datetime import datetime
 
+# Initialize SparkContext
 sc = SparkContext(appName="hw2")
 sc.setLogLevel("ERROR")
 
-# read input data from HDFS to create an RDD
-data = sc.textFile("hdfs://group14-1:54310/hw1-input/") 
+# Read data from HDFS
+data = sc.textFile("hdfs://group14-1:54310/hw1-input/")
 
-# split each line correctly as CSV
+# Parse CSV safely
 splitdata = data.mapPartitions(lambda x: reader(x))
+
+
+
+
+
 
 # drop header
 header = splitdata.first()
@@ -17,7 +24,7 @@ rows = splitdata.filter(lambda x: x != header)
 
 # keep rows where crime type (OFNS_DESC) is not blank
 # OFNS_DESC is index 7 in the given dataset
-rows = rows.filter(lambda x: len(x) > 7 and x[7].strip() != "")
+rows2 = rows2.filter(lambda x: len(x) > 7 and x[7].strip() != "")
 
 # --- filter month = July using RPT_DT at index 1 --
 
@@ -35,14 +42,14 @@ def is_july(dt):
             pass
     return False
 
-july_rows = rows.filter(lambda x: len(x) > 1 and is_july(x[1]))
+july_rows = rows2.filter(lambda x: len(x) > 1 and is_july(x[1]))
 
 # --- map to (crime,1) and count --
 pairs = july_rows.map(lambda x: (x[7].strip(), 1))
-counts = pairs.reduceByKey(lambda a,b: a+b)
+counts2 = pairs.reduceByKey(lambda a,b: a+b)
 
 # --- sort descending by count --
-sorted_counts = counts.sortBy(lambda kv: (-kv[1], kv[0]))
+sorted_counts = counts2.sortBy(lambda kv: (-kv[1], kv[0]))
 
 # --- take top 3 
 top3 = sorted_counts.take(3)
@@ -51,4 +58,43 @@ print("Top 3 crimes in July:")
 for rank,(crime,c) in enumerate(top3,1):
     print(f"{rank}. {crime} — {c}")
 
+
+
+
+
+# Filter out header row based on column label content
+splitdata = splitdata.filter(lambda x: len(x) > 7 and x[5] != "RPT_DT" and x[7] != "OFNS_DESC")
+
+# Columns of interest:
+# rpt_dt (Report Date) -> index 5
+# ofns_desc (Offense Description) -> index 7
+
+# Filter for DANGEROUS WEAPONS crimes in July
+def is_july_dangerous_weapons(row3):
+    try:
+        ofns_desc = row3[7].strip().upper()
+        rpt_date = row3[5].strip()
+        
+        # Only consider records that exactly match "DANGEROUS WEAPONS"
+        if ofns_desc != "DANGEROUS WEAPONS":
+            return False
+        
+        # Parse date as MM/DD/YYYY (the NYPD format)
+        date_obj = datetime.strptime(rpt_date, "%m/%d/%Y")
+        
+        # Keep only records from July
+        return date_obj.month == 7
+    except:
+        # Skip any malformed rows
+        return False
+
+# Apply filter
+filtered = splitdata.filter(is_july_dangerous_weapons)
+
+# Count the number of records
+count3 = filtered.count()
+
+print("Number of DANGEROUS WEAPONS crimes reported in July: {}".format(count3))
+
+# Stop SparkContext
 sc.stop()
