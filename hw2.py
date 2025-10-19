@@ -13,6 +13,55 @@ data = sc.textFile("hdfs://group14-1:54310/hw1-input/")
 # Parse CSV safely
 splitdata = data.mapPartitions(lambda x: reader(x))
 
+
+
+
+
+
+# drop header
+header = splitdata.first()
+rows = splitdata.filter(lambda x: x != header)
+
+# keep rows where crime type (OFNS_DESC) is not blank
+# OFNS_DESC is index 7 in the given dataset
+rows2 = rows2.filter(lambda x: len(x) > 7 and x[7].strip() != "")
+
+# --- filter month = July using RPT_DT at index 1 --
+
+def is_july(dt):
+    """
+    True if RPT_DT parses and month == 7, else False.
+    Supports formats like YYYY-MM-DD or MM/DD/YYYY.
+    Non-parsable → False.
+    """
+    s = dt.strip()
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+        try:
+            return datetime.strptime(s, fmt).month == 7
+        except:
+            pass
+    return False
+
+july_rows = rows2.filter(lambda x: len(x) > 1 and is_july(x[1]))
+
+# --- map to (crime,1) and count --
+pairs = july_rows.map(lambda x: (x[7].strip(), 1))
+counts2 = pairs.reduceByKey(lambda a,b: a+b)
+
+# --- sort descending by count --
+sorted_counts = counts2.sortBy(lambda kv: (-kv[1], kv[0]))
+
+# --- take top 3 
+top3 = sorted_counts.take(3)
+
+print("Top 3 crimes in July:")
+for rank,(crime,c) in enumerate(top3,1):
+    print(f"{rank}. {crime} — {c}")
+
+
+
+
+
 # Filter out header row based on column label content
 splitdata = splitdata.filter(lambda x: len(x) > 7 and x[5] != "RPT_DT" and x[7] != "OFNS_DESC")
 
@@ -21,10 +70,10 @@ splitdata = splitdata.filter(lambda x: len(x) > 7 and x[5] != "RPT_DT" and x[7] 
 # ofns_desc (Offense Description) -> index 7
 
 # Filter for DANGEROUS WEAPONS crimes in July
-def is_july_dangerous_weapons(row):
+def is_july_dangerous_weapons(row3):
     try:
-        ofns_desc = row[7].strip().upper()
-        rpt_date = row[5].strip()
+        ofns_desc = row3[7].strip().upper()
+        rpt_date = row3[5].strip()
         
         # Only consider records that exactly match "DANGEROUS WEAPONS"
         if ofns_desc != "DANGEROUS WEAPONS":
@@ -43,9 +92,9 @@ def is_july_dangerous_weapons(row):
 filtered = splitdata.filter(is_july_dangerous_weapons)
 
 # Count the number of records
-count = filtered.count()
+count3 = filtered.count()
 
-print("Number of DANGEROUS WEAPONS crimes reported in July: {}".format(count))
+print("Number of DANGEROUS WEAPONS crimes reported in July: {}".format(count3))
 
 # Stop SparkContext
 sc.stop()
