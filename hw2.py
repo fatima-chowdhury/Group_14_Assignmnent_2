@@ -88,7 +88,7 @@ top3 = sorted_counts.take(3)
 
 print("Top 3 crimes in July:")
 for rank,(crime,c) in enumerate(top3,1):
-    print(f"{rank}. {crime} — {c}")
+    print("{}.\t{}\t{}".format(rank, crime, c))
 
 
 
