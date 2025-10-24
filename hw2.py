@@ -64,7 +64,7 @@ def is_july(dt):
     """
     True if RPT_DT parses and month == 7, else False.
     Supports formats like YYYY-MM-DD or MM/DD/YYYY.
-    Non-parsable → False.
+    Non-parsable -> False.
     """
     s = dt.strip()
     for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
